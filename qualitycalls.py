@@ -93,6 +93,7 @@ def sync_data():
     # ✅ Correctly map Airtable fields to the corresponding column names in the ODS file
     column_mapping = {
         "Club Code": "Club Code",  # Used to match records
+        "OM": "OM",  # New field added
         "OM Email": "OM EMAIL",
         "DOM Email": "DOM EMAIL",
         "Contact": "Contact"
@@ -114,6 +115,7 @@ def sync_data():
             record_id = airtable_dict[club_code]
 
             update_data = {
+                "OM": row[column_mapping["OM"]],
                 "OM Email": row[column_mapping["OM Email"]],
                 "DOM Email": row[column_mapping["DOM Email"]],
                 "Contact": row[column_mapping["Contact"]]
@@ -123,6 +125,7 @@ def sync_data():
 
 if __name__ == "__main__":
     sync_data()
+
 
 
 
