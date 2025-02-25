@@ -1,6 +1,8 @@
 import pandas as pd
 import requests
 import io
+import json
+import numpy as np
 
 # Airtable API details
 AIRTABLE_BASE_ID = "appv2NG9TOP8aiYUm"
@@ -55,12 +57,18 @@ def fetch_airtable_records():
     return records
 
 def update_airtable_record(record_id, update_data):
-    """Update an Airtable record."""
-    response = requests.patch(f"{AIRTABLE_URL}/{record_id}", json={"fields": update_data}, headers=HEADERS)
-    if response.status_code == 200:
-        print(f"✅ Updated record {record_id}")
-    else:
-        print(f"❌ Error updating {record_id}:", response.status_code, response.text)
+    """Update an Airtable record, ensuring values are JSON-safe."""
+    # Convert NaN and infinite values to empty strings
+    update_data = {k: ("" if (pd.isna(v) or v in [np.nan, None, float('inf'), float('-inf')]) else str(v)) for k, v in update_data.items()}
+
+    try:
+        response = requests.patch(f"{AIRTABLE_URL}/{record_id}", json={"fields": update_data}, headers=HEADERS)
+        if response.status_code == 200:
+            print(f"✅ Updated record {record_id}")
+        else:
+            print(f"❌ Error updating {record_id}:", response.status_code, response.text)
+    except requests.exceptions.InvalidJSONError as e:
+        print(f"❌ JSON Error: {e} - Data: {json.dumps(update_data)}")
 
 def sync_data():
     """Sync data from GitHub ODS to Airtable based on Club Code."""
@@ -115,5 +123,6 @@ def sync_data():
 
 if __name__ == "__main__":
     sync_data()
+
 
 
