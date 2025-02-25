@@ -82,14 +82,16 @@ def sync_data():
     if airtable_records is None:
         return
 
-    # Column Mapping (Update if different)
-    club_code_col = "D"  # Club Code
-    om_email_col = "L"  # OM Email
-    dom_email_col = "J"  # DOM Email
-    contact_col = "F"  # Contact
+    # ✅ Correctly map Airtable fields to the corresponding column names in the ODS file
+    column_mapping = {
+        "Club Code": "Club Code",  # Used to match records
+        "OM Email": "OM EMAIL",
+        "DOM Email": "DOM EMAIL",
+        "Contact": "Contact"
+    }
 
     # Check if expected columns exist
-    missing_columns = [col for col in [club_code_col, om_email_col, dom_email_col, contact_col] if col not in filtered_data.columns]
+    missing_columns = [col for col in column_mapping.values() if col not in filtered_data.columns]
     if missing_columns:
         print(f"❌ Missing Columns: {missing_columns}. Check column names in MLS.ods.")
         return
@@ -99,18 +101,19 @@ def sync_data():
 
     # Iterate over the ODS data and update matching Airtable records
     for _, row in filtered_data.iterrows():
-        club_code = str(row[club_code_col]).strip()  # Get Club Code
+        club_code = str(row[column_mapping["Club Code"]]).strip()  # Get Club Code
         if club_code in airtable_dict:
             record_id = airtable_dict[club_code]
 
             update_data = {
-                "OM Email": row[om_email_col],
-                "DOM Email": row[dom_email_col],
-                "Contact": row[contact_col]
+                "OM Email": row[column_mapping["OM Email"]],
+                "DOM Email": row[column_mapping["DOM Email"]],
+                "Contact": row[column_mapping["Contact"]]
             }
 
             update_airtable_record(record_id, update_data)
 
 if __name__ == "__main__":
     sync_data()
+
 
