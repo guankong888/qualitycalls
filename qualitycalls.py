@@ -68,8 +68,8 @@ def sync_data():
     if ods_file is None:
         return
 
-    # Read the ODS file and get all sheets
-    df_dict = pd.read_excel(ods_file, sheet_name=None, engine="odf")
+    # Read the ODS file and get all sheets, setting row 2 as header (index 1 in Python)
+    df_dict = pd.read_excel(ods_file, sheet_name=None, engine="odf", header=1)
 
     # Filter relevant sheets
     relevant_sheets = ["Arizona", "California", "Utah", "Nevada", "Texas", "Florida"]
@@ -82,10 +82,7 @@ def sync_data():
     if airtable_records is None:
         return
 
-    # Convert Airtable records to a dictionary with Club Code as key
-    airtable_dict = {rec["fields"].get("Club Code"): rec["id"] for rec in airtable_records if "Club Code" in rec["fields"]}
-
-    # Column Mapping (Update these if different)
+    # Column Mapping (Update if different)
     club_code_col = "D"  # Club Code
     om_email_col = "L"  # OM Email
     dom_email_col = "J"  # DOM Email
@@ -96,6 +93,9 @@ def sync_data():
     if missing_columns:
         print(f"❌ Missing Columns: {missing_columns}. Check column names in MLS.ods.")
         return
+
+    # Convert Airtable records to a dictionary with Club Code as key
+    airtable_dict = {rec["fields"].get("Club Code"): rec["id"] for rec in airtable_records if "Club Code" in rec["fields"]}
 
     # Iterate over the ODS data and update matching Airtable records
     for _, row in filtered_data.iterrows():
@@ -113,3 +113,4 @@ def sync_data():
 
 if __name__ == "__main__":
     sync_data()
+
