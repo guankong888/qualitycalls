@@ -1,4 +1,4 @@
-import pandas as p
+import pandas as pd
 import requests
 import io
 import json
